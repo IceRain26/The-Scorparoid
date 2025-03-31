@@ -26,6 +26,20 @@ is_live_twitch = False
 is_live_youtube = False
 
 
+@bot.command(name="status")
+async def status(ctx):
+    global is_live_twitch, is_live_youtube
+
+    if is_live_twitch or is_live_youtube:
+        status_message = "🚀 Scorpius is currently LIVE! 🎮"
+        if is_live_twitch:
+            status_message += f"\n🟣 Twitch: https://twitch.tv/{STREAMER_TWITCH}"
+        if is_live_youtube:
+            status_message += f"\n🔴 YouTube: https://www.youtube.com/channel/{YOUTUBE_CHANNEL_ID}"
+    else:
+        status_message = "😴 Scorpius is currently offline."
+
+    await ctx.send(status_message)
 class StreamAlert(commands.Cog):
     def __init__(self, bot, twitch):
         self.bot = bot
@@ -45,7 +59,7 @@ class StreamAlert(commands.Cog):
             else:
                 self.youtube_channel_name = "Unknown"
         except Exception as e:
-            print(f"Error fetching YouTube channel name: {str(e)}")
+            print(f"[Error] fetching YouTube channel name: {str(e)}")
             self.youtube_channel_name = "Unknown"
 
     @tasks.loop(minutes=1)
@@ -136,11 +150,16 @@ class StreamAlert(commands.Cog):
     async def before_check_stream(self):
         await self.bot.wait_until_ready()
 
+@bot.event
+async def on_command_error(ctx, error):
+    print(f"Error: {error} in channel: {ctx.channel.name}")
+    await ctx.send(f"An error occurred: {error}")
 
 @bot.event
 async def on_ready():
     print(f"{bot.user} has connected to Discord!")
     print(f"Monitoring {STREAMER_TWITCH}'s Twitch stream and {YOUTUBE_CHANNEL_ID}'s YouTube stream")
+
 
 
 async def main():
