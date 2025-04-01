@@ -86,25 +86,25 @@ class StreamAlert(commands.Cog):
             youtube_title = None
             youtube_url = None
 
-
-            youtube_request = youtube.search().list(
-                part="snippet",
-                channelId=YOUTUBE_CHANNEL_ID,
-                eventType="live",
-                type="video"
-            )
+            if currently_live_twitch:
+                youtube_request = youtube.search().list(
+                    part="snippet",
+                    channelId=YOUTUBE_CHANNEL_ID,
+                    eventType="live",
+                    type="video"
+                )
                 
 
-            youtube_response = youtube_request.execute()
-            youtube_videos = youtube_response.get("items", [])
-            currectly_live_youtube = bool(youtube_videos)
+                youtube_response = youtube_request.execute()
+                youtube_videos = youtube_response.get("items", [])
+                currectly_live_youtube = bool(youtube_videos)
 
-            if currectly_live_youtube:
-                youtube_data = youtube_videos[0]
-                youtube_video_id = youtube_data["id"]["videoId"]
-                youtube_thumbnail = youtube_data["snippet"]["thumbnails"]["high"]["url"]
-                youtube_title = youtube_data["snippet"]["title"]
-                youtube_url = f"https://www.youtube.com/watch?v={youtube_video_id}"
+                if currectly_live_youtube:
+                    youtube_data = youtube_videos[0]
+                    youtube_video_id = youtube_data["id"]["videoId"]
+                    youtube_thumbnail = youtube_data["snippet"]["thumbnails"]["high"]["url"]
+                    youtube_title = youtube_data["snippet"]["title"]
+                    youtube_url = f"https://www.youtube.com/watch?v={youtube_video_id}"
             
             if (currently_live_twitch and not is_live_twitch) or (currently_live_youtube and not is_live_youtube):
                 twitch_thumbnail = None
