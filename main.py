@@ -40,6 +40,7 @@ async def status(ctx):
         status_message = "😴 Scorpius is currently offline."
 
     await ctx.send(status_message)
+
 class StreamAlert(commands.Cog):
     def __init__(self, bot, twitch):
         self.bot = bot
@@ -68,7 +69,6 @@ class StreamAlert(commands.Cog):
         global is_live_twitch, is_live_youtube
 
         try:
-
             today = datetime.now().date()
 
             if self.last_notification_date == today:
@@ -84,7 +84,8 @@ class StreamAlert(commands.Cog):
             currently_live_youtube = False
             youtube_thumbnail = None
             youtube_title = None
-            youtube_url = f"https://www.youtube.com/channel/{YOUTUBE_CHANNEL_ID}"
+            youtube_url = None
+
 
             youtube_request = youtube.search().list(
                 part="snippet",
@@ -92,18 +93,18 @@ class StreamAlert(commands.Cog):
                 eventType="live",
                 type="video"
             )
+                
 
-            if currently_live_twitch:
-                youtube_response = youtube_request.execute()
-                youtube_videos = youtube_response.get("items", [])
-                currently_live_youtube = bool(youtube_videos)
+            youtube_response = youtube_request.execute()
+            youtube_videos = youtube_response.get("items", [])
+            currectly_live_youtube = bool(youtube_videos)
 
-                if currently_live_youtube:
-                    youtube_data = youtube_videos[0]
-                    youtube_thumbnail = youtube_data["snippet"]["thumbnails"]["high"]["url"]
-                    youtube_title = youtube_data["snippet"]["title"]
-                    youtube_url = f"https://www.youtube.com/watch?v={youtube_data['id']['videoId']}"
-
+            if currectly_live_youtube:
+                youtube_data = youtube_videos[0]
+                youtube_video_id = youtube_data["id"]["videoId"]
+                youtube_thumbnail = youtube_data["snippet"]["thumbnails"]["high"]["url"]
+                youtube_title = youtube_data["snippet"]["title"]
+                youtube_url = f"https://www.youtube.com/watch?v={youtube_video_id}"
             
             if (currently_live_twitch and not is_live_twitch) or (currently_live_youtube and not is_live_youtube):
                 twitch_thumbnail = None
@@ -120,7 +121,7 @@ class StreamAlert(commands.Cog):
                     await channel.send("** Hey @everyone!**")
                     embed = discord.Embed(
                         title="** 🚀 LIVE NOW!🚀 **",
-                        description="🔥 Scorpius is streaming! Join the hype and catch all the action! 🎮✨",
+                        description="🔥Scorpius is streaming! Join the hype and catch all the action!🎮✨",
                         color=0x6441A4
                     )
 
